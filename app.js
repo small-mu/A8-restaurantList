@@ -1,10 +1,6 @@
 const express = require('express')
 const exphbs = require('express-handlebars')
-const mongoose = require('mongoose')
-
-//1-1 直接取用JSON檔的方法
-//const restaurantList = require('./restaurant.json')
-//1-2 將JSON檔建立資料庫的方法
+const methodOverride = require('method-override')
 const Restaurant = require('./models/restaurant')
 
 const app = express()
@@ -12,25 +8,11 @@ const port = 3000
 
 // 引用 body-parser
 const bodyParser = require('body-parser')
-const restaurant = require('./models/restaurant')
 // 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(methodOverride('_method'))
 
-//connnect database
-mongoose.connect('mongodb://localhost/restaurant-list', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
-})
-
-//取得資料庫連線狀態
-const db = mongoose.connection
-db.on('error', () => { console.log('Error!') })
-db.once('open', () => { console.log('Mongodb connected!') })
-
-
-
+require('./config/mongoose')
 //use public file
 app.use(express.static('public'))
 
@@ -50,11 +32,6 @@ app.get('/', (req, res) => {
 
 //介紹餐廳 
 app.get('/restaurants/:id', (req, res) => {
-  //1-1 直接取用JSON檔的方法
-  //const getRestaurant = restaurantList.results.find(item => item.id.toString() === req.params:id)
-  //res.render('show', { restaurant: getRestaurant .)
-
-  //1-2 將JSON檔建立資料庫的方法
   const id = req.params.id
   return Restaurant.findById(id)
     .lean()
@@ -64,8 +41,7 @@ app.get('/restaurants/:id', (req, res) => {
 })
 
 //刪除餐廳 
-app.post('/restaurants/:id/delete', (req, res) => {
-
+app.delete('/restaurants/:id', (req, res) => {
   const id = req.params.id
   return Restaurant.findById(id)
     .then(restaurant => restaurant.remove())
@@ -120,11 +96,6 @@ app.post('/restaurants/:id/edit/update', (req, res) => {
 //搜尋功能
 app.get('/search', (req, res) => {
   const keyword = req.query.keyword
-  //1-1 直接取用JSON檔的方法
-  //const getRestaurant = restaurantList.results.filter(item => { return item.name.toLowerCase().includes(keyword) || item.category.includes(keyword) })
-  //res.render('index', { restaurants: getRestaurant, keyword: keyword })
-
-  //1-2 將JSON檔建立資料庫的方法
   return Restaurant.find({
     "$or": [
       { "name": { $regex: `${keyword}`, $options: '$i' } },
