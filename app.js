@@ -42,6 +42,7 @@ app.set('view engine', 'handlebars')
 app.get('/', (req, res) => {
   Restaurant.find()
     .lean()
+    .sort({name:'asc'})
     .then(restaurants => res.render('index', { restaurants }))
     .catch(error => console.error(error))
 })
