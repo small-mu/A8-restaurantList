@@ -1,5 +1,5 @@
 
-const Restaurant = require('../restaurant')
+const Restaurant = require('../../models/restaurant')
 const restaurantList = require('./restaurant.json')
 const db = require('../../config/mongoose')
 
