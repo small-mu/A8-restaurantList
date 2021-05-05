@@ -72,7 +72,7 @@ app.get('/restaurants/:id/edit', (req, res) => {
 })
 
 
-app.post('/restaurants/:id/edit/update', (req, res) => {
+app.put('/restaurants/:id', (req, res) => {
   const id = req.params.id
   return Restaurant.findById(id)
     .then(restaurant => {
